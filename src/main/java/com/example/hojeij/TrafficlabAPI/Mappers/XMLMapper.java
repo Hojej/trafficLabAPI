@@ -1,31 +1,43 @@
 package com.example.hojeij.TrafficlabAPI.Mappers;
 
+import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@XmlRootElement
+@XmlRootElement(name="ResponseOfPwsResult")
+@NoArgsConstructor
 public class XMLMapper {
     private String statusCode;
 
     private int executionTime;
-    private List<BusDTO> resposeData;
+    private ResponseData responseData;
 
-    public List<BusDTO> getResposeData() {
-        return resposeData;
+    @XmlElement(name="ResponseData")
+    public ResponseData getResponseData() {
+        return responseData;
     }
 
-    public void setResposeData(List<BusDTO> resposeData) {
-        this.resposeData = resposeData;
+
+    public void setResponseData(ResponseData responseData) {
+        this.responseData = responseData;
+    }
+    @XmlElement(name="StatusCode")
+    public String getStatusCode() {
+        return statusCode;
     }
 
-    public XMLMapper(){};
-
-    public XMLMapper(String statusCode, int executionTime, List<BusDTO> resposeData) {
+    public void setStatusCode(String statusCode) {
         this.statusCode = statusCode;
-        this.executionTime = executionTime;
-        this.resposeData = resposeData;
     }
 
+    @XmlElement(name="ExecutionTime")
+    public int getExecutionTime() {
+        return executionTime;
+    }
 
+    public void setExecutionTime(int executionTime) {
+        this.executionTime = executionTime;
+    }
 }

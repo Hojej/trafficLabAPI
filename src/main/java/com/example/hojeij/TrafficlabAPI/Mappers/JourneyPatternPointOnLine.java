@@ -6,18 +6,18 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.util.Date;
 
-@XmlRootElement
-public class BusDTO {
+@XmlRootElement(name="JourneyPatternPointOnLine")
+public class JourneyPatternPointOnLine {
     private int lineNumber;
     private int directionCode;
     private String journeyPatternPointNumber;
     private Date lastModifiedUtcDateTime;
     private Date existsFromDate;
 
-    public BusDTO(){
+    public JourneyPatternPointOnLine(){
 
     }
-    public BusDTO(int lineNumber, int directionCode, String journeyPatternPointNumber, Date lastModifiedUtcDateTime, Date existsFromDate) {
+    public JourneyPatternPointOnLine(int lineNumber, int directionCode, String journeyPatternPointNumber, Date lastModifiedUtcDateTime, Date existsFromDate) {
         this.lineNumber = lineNumber;
         this.directionCode = directionCode;
         this.journeyPatternPointNumber = journeyPatternPointNumber;

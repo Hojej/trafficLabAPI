@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://api.sl.se/api/pws" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Version" type="xs:string"/>
+  <xs:element name="Type" type="xs:string"/>
+  <xs:element name="JourneyPatternPointOnLine" type="pws:JourneyPatternPointOnLineType" xmlns:pws="http://api.sl.se/api/pws"/>
+  <xs:complexType name="JourneyPatternPointOnLineType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="LineNumber"/>
+      <xs:element name="DirectionCode">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="1"/>
+            <xs:enumeration value="2"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element type="xs:string" name="JourneyPatternPointNumber"/>
+      <xs:element type="xs:string" name="LastModifiedUtcDateTime"/>
+      <xs:element type="xs:string" name="ExistsFromDate"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
