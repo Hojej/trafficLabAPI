@@ -2,11 +2,15 @@ package com.example.hojeij.TrafficlabAPI.Mappers;
 
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @XmlRootElement(name="ResponseOfPwsResult")
+@XmlType(propOrder = {
+        "statusCode",
+        "executionTime",
+        "responseData"
+})
 @NoArgsConstructor
 public class XMLMapper {
     private String statusCode;

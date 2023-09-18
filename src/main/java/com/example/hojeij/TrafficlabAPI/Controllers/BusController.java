@@ -1,5 +1,6 @@
 package com.example.hojeij.TrafficlabAPI.Controllers;
 
+import com.example.hojeij.TrafficlabAPI.Mappers.JourneyPatternPointOnLine;
 import com.example.hojeij.TrafficlabAPI.Mappers.XMLMapper;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -15,6 +16,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 
 @RestController
 public class BusController {
@@ -39,24 +41,23 @@ public class BusController {
             throw new RuntimeException(e);
         }
         //System.out.println(res.body());
-
+        List<JourneyPatternPointOnLine> list;
         try {
-            System.out.println(XMLtoString(res.body().toString()).getResponseData().getVersion());
+            list = XMLtoString(res.body().toString()).getResponseData().getList();
         } catch (JAXBException e) {
             throw new RuntimeException(e);
+        }
+        for (int i = 0; i < list.size(); i++) {
+            JourneyPatternPointOnLine temp = list.get(i);
+            System.out.println("Number: " + temp.getLineNumber() + " DirectionNumber: " + temp.getDirectionCode() + " Point: " + temp.getJourneyPatternPointNumber());
         }
     }
 
     private static XMLMapper XMLtoString(String res) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(XMLMapper.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        XMLMapper mapper = (XMLMapper) unmarshaller.unmarshal(new StringReader(res));
+        return  (XMLMapper) unmarshaller.unmarshal(new StringReader(res));
 
-        Marshaller marshaller = jaxbContext.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "C:\\Users\\Hojeij\\IdeaProjects\\trafficLabAPI\\src\\main\\resources\\static\\data-test.xsd");
-        marshaller.marshal(mapper, System.out);
-
-        return (XMLMapper) unmarshaller.unmarshal(new StringReader(res));
+        //return (XMLMapper) unmarshaller.unmarshal(new StringReader(res));
     }
 }
