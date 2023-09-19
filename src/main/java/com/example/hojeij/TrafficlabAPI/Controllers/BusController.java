@@ -16,7 +16,10 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class BusController {
@@ -40,24 +43,47 @@ public class BusController {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        //System.out.println(res.body());
+
         List<JourneyPatternPointOnLine> list;
         try {
             list = XMLtoString(res.body().toString()).getResponseData().getList();
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }
-        for (int i = 0; i < list.size(); i++) {
-            JourneyPatternPointOnLine temp = list.get(i);
-            System.out.println("Number: " + temp.getLineNumber() + " DirectionNumber: " + temp.getDirectionCode() + " Point: " + temp.getJourneyPatternPointNumber());
+
+        List<List<JourneyPatternPointOnLine>> doublelist= formatter(list);
+        int sum = 0;
+        Map<Integer, Integer> stops = new HashMap<>();
+        for (int i = 0;i < doublelist.size(); i++){
+            stops.put(doublelist.get(i).get(0).getLineNumber(), doublelist.get(i).size());
+            System.out.println("Linje nr: " + doublelist.get(i).get(0).getLineNumber() + " -- " + doublelist.get(i).size());
+            sum+=doublelist.get(i).size();
         }
+        System.out.println(sum);
+
     }
+
+    private List<List<JourneyPatternPointOnLine>> formatter(List<JourneyPatternPointOnLine> list){
+        List<List<JourneyPatternPointOnLine>> toRet = new ArrayList<>();
+        while(!list.isEmpty()){
+            List<JourneyPatternPointOnLine> tempList = new ArrayList<>();
+            tempList.add(list.get(list.size()-1));
+            list.remove(list.size()-1);
+            for (int i = list.size()-1; i >= 0; i--){
+                if(list.get(i).getLineNumber() == tempList.get(0).getLineNumber()){
+                    tempList.add(list.get(i));
+                    list.remove(i);
+                }
+            }
+            toRet.add(tempList);
+        }
+        return toRet;
+    }
+
 
     private static XMLMapper XMLtoString(String res) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(XMLMapper.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         return  (XMLMapper) unmarshaller.unmarshal(new StringReader(res));
-
-        //return (XMLMapper) unmarshaller.unmarshal(new StringReader(res));
     }
 }
