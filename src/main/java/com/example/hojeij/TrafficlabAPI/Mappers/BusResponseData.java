@@ -11,7 +11,7 @@ import java.util.List;
         "type",
         "list"
 })
-public class ResponseData {
+public class BusResponseData {
     private String version;
     private String type;
     private List<JourneyPatternPointOnLine> list;

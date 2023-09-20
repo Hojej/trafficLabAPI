@@ -1,16 +1,13 @@
 package com.example.hojeij.TrafficlabAPI.Controllers;
 
+import com.example.hojeij.TrafficlabAPI.Common.JAXBConverter;
+import com.example.hojeij.TrafficlabAPI.Mappers.Constants;
 import com.example.hojeij.TrafficlabAPI.Mappers.JourneyPatternPointOnLine;
-import com.example.hojeij.TrafficlabAPI.Mappers.XMLMapper;
-import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
-import jakarta.xml.bind.Unmarshaller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -21,33 +18,31 @@ import java.util.*;
 @RestController
 public class BusController {
 
-    private static final String _URI = "https://api.sl.se/api2/LineData.xml?model=jour&key=6e4cb358d1ea47b4b056a400d3b9a188&DefaultTransportModeCode=BUS";
     @GetMapping
     public void busInfo() throws URISyntaxException {
 
-        HttpResponse res = callAPI();
+        HttpResponse busResponse = callAPIToGetBuses();
 
-        Map<Integer, List<JourneyPatternPointOnLine>> finish = sortedMap(formatterMap(createBusStopList(res)));
+        Map<Integer, List<JourneyPatternPointOnLine>> sortedListofTop10Buses = sortedMap(formatterMap(createBusStopIDList(busResponse)));
 
-        printResult(finish);
+        BusStopController busStopController = new BusStopController();
+
+        printResult(sortedListofTop10Buses, busStopController.stopsInfo());
     }
 
-    private List<JourneyPatternPointOnLine> createBusStopList(HttpResponse res){
+    private List<JourneyPatternPointOnLine> createBusStopIDList(HttpResponse res){
         List<JourneyPatternPointOnLine> list;
         try {
-            list = XMLtoString(res.body().toString()).getResponseData().getList();
+            list = JAXBConverter.XMLtoBusPOJO(res.body().toString()).getResponseData().getList();
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }
         return list;
     }
 
-    private HttpResponse callAPI() throws URISyntaxException {
+    private HttpResponse callAPIToGetBuses() throws URISyntaxException {
         HttpRequest get = HttpRequest.newBuilder()
-                .uri(new URI(_URI))
-                .header("key", "6e4cb358d1ea47b4b056a400d3b9a188")
-                .header("model", "jour")
-                .header("DefaultTransportModeCode", "BUS")
+                .uri(new URI(Constants.BUSES_URI))
                 .GET().build();
 
         HttpClient httpClient = HttpClient.newHttpClient();
@@ -60,13 +55,18 @@ public class BusController {
         return res;
     }
 
-    private void printResult(Map<Integer, List<JourneyPatternPointOnLine>> finish){
+    private void printResult(Map<Integer, List<JourneyPatternPointOnLine>> finish, Map<String, String> stops){
         System.out.println(finish.keySet());
         ArrayList<Integer> arr = new ArrayList<>(finish.keySet());
-        for (int i = 0; i < finish.size(); i++){
+        for (int i = 0; i < finish.size(); i++) {
             List<JourneyPatternPointOnLine> value = finish.get(arr.get(i));
-            for (int j = 0; j < value.size(); j++)
-                System.out.println("Linje " + arr.get(i) + ": Hållplats ("+ j +"): " + value.get(j).getJourneyPatternPointNumber());
+            for (int j = 0; j < value.size(); j++) {
+                if (stops.containsKey(value.get(j).getJourneyPatternPointNumber())) {
+                    System.out.println("Linje " + arr.get(i) + ": Hållplats (" + j + "): " + stops.get(value.get(j).getJourneyPatternPointNumber()));
+                } else {
+                    System.out.println("Linje " + arr.get(i) + ": Hållplats (" + j + "): " + value.get(j).getJourneyPatternPointNumber());
+                }
+            }
         }
     }
 
@@ -87,12 +87,6 @@ public class BusController {
             toRet.put(busLine, tempList);
         }
         return toRet;
-    }
-
-    private static XMLMapper XMLtoString(String res) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(XMLMapper.class);
-        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        return  (XMLMapper) unmarshaller.unmarshal(new StringReader(res));
     }
 
     private Map<Integer, List<JourneyPatternPointOnLine>> sortedMap(Map<Integer, List<JourneyPatternPointOnLine>> toSortMap){

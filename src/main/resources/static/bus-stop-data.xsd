@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://api.sl.se/api/pws" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Version" type="xs:string"/>
+  <xs:element name="Type" type="xs:string"/>
+  <xs:element name="Site" type="pws:SiteType" xmlns:pws="http://api.sl.se/api/pws"/>
+  <xs:complexType name="SiteType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="SiteId"/>
+      <xs:element type="xs:string" name="SiteName"/>
+      <xs:element type="xs:string" name="StopAreaNumber"/>
+      <xs:element type="xs:string" name="LastModifiedUtcDateTime"/>
+      <xs:element type="xs:string" name="ExistsFromDate"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
