@@ -24,6 +24,25 @@ public class BusController {
     private static final String _URI = "https://api.sl.se/api2/LineData.xml?model=jour&key=6e4cb358d1ea47b4b056a400d3b9a188&DefaultTransportModeCode=BUS";
     @GetMapping
     public void busInfo() throws URISyntaxException {
+
+        HttpResponse res = callAPI();
+
+        Map<Integer, List<JourneyPatternPointOnLine>> finish = sortedMap(formatterMap(createBusStopList(res)));
+
+        printResult(finish);
+    }
+
+    private List<JourneyPatternPointOnLine> createBusStopList(HttpResponse res){
+        List<JourneyPatternPointOnLine> list;
+        try {
+            list = XMLtoString(res.body().toString()).getResponseData().getList();
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+        return list;
+    }
+
+    private HttpResponse callAPI() throws URISyntaxException {
         HttpRequest get = HttpRequest.newBuilder()
                 .uri(new URI(_URI))
                 .header("key", "6e4cb358d1ea47b4b056a400d3b9a188")
@@ -38,30 +57,16 @@ public class BusController {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+        return res;
+    }
 
-        List<JourneyPatternPointOnLine> list;
-        try {
-            list = XMLtoString(res.body().toString()).getResponseData().getList();
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
-
-        Map<Integer, List<JourneyPatternPointOnLine>> doublelist= formatterMap(list);
-
-        List<Integer> points = new ArrayList<>(doublelist.keySet());
-
-        Map<Integer, Integer> busStopsMap = new HashMap<>();
-        for (int i = 0; i < doublelist.size(); i++){
-            busStopsMap.put(points.get(i), doublelist.get(points.get(i)).size());
-        }
-
-        Map<Integer, List<JourneyPatternPointOnLine>> finish = sortedMap(doublelist);
-
+    private void printResult(Map<Integer, List<JourneyPatternPointOnLine>> finish){
         System.out.println(finish.keySet());
         ArrayList<Integer> arr = new ArrayList<>(finish.keySet());
         for (int i = 0; i < finish.size(); i++){
-            for (int j = 0; j < finish.get(arr.get(i)).size(); j++)
-            System.out.println("Linje " + arr.get(i) + ": Hållplats ("+ j +"): " + finish.get(arr.get(i)).get(j).getJourneyPatternPointNumber());
+            List<JourneyPatternPointOnLine> value = finish.get(arr.get(i));
+            for (int j = 0; j < value.size(); j++)
+                System.out.println("Linje " + arr.get(i) + ": Hållplats ("+ j +"): " + value.get(j).getJourneyPatternPointNumber());
         }
     }
 
