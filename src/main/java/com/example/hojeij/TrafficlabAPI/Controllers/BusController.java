@@ -16,10 +16,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 public class BusController {
@@ -27,6 +24,25 @@ public class BusController {
     private static final String _URI = "https://api.sl.se/api2/LineData.xml?model=jour&key=6e4cb358d1ea47b4b056a400d3b9a188&DefaultTransportModeCode=BUS";
     @GetMapping
     public void busInfo() throws URISyntaxException {
+
+        HttpResponse res = callAPI();
+
+        Map<Integer, List<JourneyPatternPointOnLine>> finish = sortedMap(formatterMap(createBusStopList(res)));
+
+        printResult(finish);
+    }
+
+    private List<JourneyPatternPointOnLine> createBusStopList(HttpResponse res){
+        List<JourneyPatternPointOnLine> list;
+        try {
+            list = XMLtoString(res.body().toString()).getResponseData().getList();
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+        return list;
+    }
+
+    private HttpResponse callAPI() throws URISyntaxException {
         HttpRequest get = HttpRequest.newBuilder()
                 .uri(new URI(_URI))
                 .header("key", "6e4cb358d1ea47b4b056a400d3b9a188")
@@ -38,36 +54,29 @@ public class BusController {
         HttpResponse res = null;
         try {
             res = httpClient.send(get, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-
-        List<JourneyPatternPointOnLine> list;
-        try {
-            list = XMLtoString(res.body().toString()).getResponseData().getList();
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
-
-        List<List<JourneyPatternPointOnLine>> doublelist= formatter(list);
-        int sum = 0;
-        Map<Integer, Integer> stops = new HashMap<>();
-        for (int i = 0;i < doublelist.size(); i++){
-            stops.put(doublelist.get(i).get(0).getLineNumber(), doublelist.get(i).size());
-            System.out.println("Linje nr: " + doublelist.get(i).get(0).getLineNumber() + " -- " + doublelist.get(i).size());
-            sum+=doublelist.get(i).size();
-        }
-        System.out.println(sum);
-
+        return res;
     }
 
-    private List<List<JourneyPatternPointOnLine>> formatter(List<JourneyPatternPointOnLine> list){
-        List<List<JourneyPatternPointOnLine>> toRet = new ArrayList<>();
+    private void printResult(Map<Integer, List<JourneyPatternPointOnLine>> finish){
+        System.out.println(finish.keySet());
+        ArrayList<Integer> arr = new ArrayList<>(finish.keySet());
+        for (int i = 0; i < finish.size(); i++){
+            List<JourneyPatternPointOnLine> value = finish.get(arr.get(i));
+            for (int j = 0; j < value.size(); j++)
+                System.out.println("Linje " + arr.get(i) + ": Hållplats ("+ j +"): " + value.get(j).getJourneyPatternPointNumber());
+        }
+    }
+
+    private HashMap<Integer, List<JourneyPatternPointOnLine>> formatterMap(List<JourneyPatternPointOnLine> list){
+        HashMap<Integer, List<JourneyPatternPointOnLine>> toRet = new HashMap<>();
+        int busLine = 0;
         while(!list.isEmpty()){
             List<JourneyPatternPointOnLine> tempList = new ArrayList<>();
             tempList.add(list.get(list.size()-1));
+            busLine = list.get(list.size()-1).getLineNumber();
             list.remove(list.size()-1);
             for (int i = list.size()-1; i >= 0; i--){
                 if(list.get(i).getLineNumber() == tempList.get(0).getLineNumber()){
@@ -75,15 +84,40 @@ public class BusController {
                     list.remove(i);
                 }
             }
-            toRet.add(tempList);
+            toRet.put(busLine, tempList);
         }
         return toRet;
     }
-
 
     private static XMLMapper XMLtoString(String res) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(XMLMapper.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         return  (XMLMapper) unmarshaller.unmarshal(new StringReader(res));
+    }
+
+    private Map<Integer, List<JourneyPatternPointOnLine>> sortedMap(Map<Integer, List<JourneyPatternPointOnLine>> toSortMap){
+        LinkedList<Map.Entry<Integer, List<JourneyPatternPointOnLine>>> toComapareList =
+                new LinkedList<Map.Entry<Integer, List<JourneyPatternPointOnLine>>>(toSortMap.entrySet());
+        Comparator<Map.Entry<Integer, List<JourneyPatternPointOnLine>>> comparator = new Comparator<Map.Entry<Integer, List<JourneyPatternPointOnLine>>>() {
+
+            @Override
+            public int compare(Map.Entry<Integer, List<JourneyPatternPointOnLine>> o1, Map.Entry<Integer, List<JourneyPatternPointOnLine>> o2) {
+                if(o1.getValue().size() < o2.getValue().size()){
+                    return 1;
+                } else if (o1.getValue().size() > o2.getValue().size()) {
+                    return -1;
+                }
+                else {
+                    return 0;
+                }
+            }
+
+        };
+        Collections.sort(toComapareList, comparator);
+        HashMap<Integer, List<JourneyPatternPointOnLine>> toRet = new HashMap<>();
+        for (int i = 0; i < 10; i++) {
+            toRet.put(toComapareList.get(i).getKey(),toComapareList.get(i).getValue());
+        }
+        return toRet;
     }
 }
