@@ -19,6 +19,14 @@ public class Site {
     private String lastModifiedUtcDateTime;
     private String existsFromDate;
 
+    public Site(String siteId, String siteName, String stopAreaNumber, String lastModifiedUtcDateTime, String existsFromDate) {
+        this.siteId = siteId;
+        this.siteName = siteName;
+        this.stopAreaNumber = stopAreaNumber;
+        this.lastModifiedUtcDateTime = lastModifiedUtcDateTime;
+        this.existsFromDate = existsFromDate;
+    }
+
     @XmlElement(name = "SiteId", namespace = Constants.JOURNEYPATTERNPOINTONLINE_NAMESPACE)
     public String getSiteId() {
         return siteId;
