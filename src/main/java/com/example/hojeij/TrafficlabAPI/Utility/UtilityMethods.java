@@ -1,26 +1,50 @@
 package com.example.hojeij.TrafficlabAPI.Utility;
 
-import com.example.hojeij.TrafficlabAPI.Mappers.JourneyPatternPointOnLine;
+import com.example.hojeij.TrafficlabAPI.Mappers.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
 public class UtilityMethods {
 
+    public Map<String, String> stopsInfo(List<Site> list){
+        return dataFormatter(list);
+    }
+
+    private Map<String, String> dataFormatter(List<Site> list) {
+        Map<String, String> toRet = new HashMap<>();
+        if(!list.isEmpty()){
+            for (int i = 0; i < list.size(); i++){
+                toRet.put(list.get(i).getStopAreaNumber(), list.get(i).getSiteName());
+            }
+            return toRet;
+        } else {
+            toRet.put("-1", "-1");
+            return toRet;
+        }
+    }
+
     public void printResult(Map<Integer, List<JourneyPatternPointOnLine>> finish, Map<String, String> stops){
         System.out.println(finish.keySet());
-        ArrayList<Integer> arr = new ArrayList<>(finish.keySet());
-        String stopName;
+        ArrayList<Integer> busLinesList = new ArrayList<>(finish.keySet());
         if(!finish.isEmpty()){
             for (int i = 0; i < finish.size(); i++) {
-                List<JourneyPatternPointOnLine> value = finish.get(arr.get(i));
-                if(!value.isEmpty()) {
-                    for (int j = 0; j < value.size(); j++) {
-                        stopName = stops.containsKey(value.get(j).getJourneyPatternPointNumber())
-                                ? stops.get(value.get(j).getJourneyPatternPointNumber())
-                                : value.get(j).getJourneyPatternPointNumber();
-                        System.out.println("Linje " + arr.get(i) + ": Hållplats (" + j + "): " + stopName);
-                    }
-                }
+                printerLoop(finish, stops, busLinesList.get(i));
+            }
+        }
+    }
+
+    private void printerLoop(Map<Integer, List<JourneyPatternPointOnLine>> finish
+            , Map<String, String> stops
+            , int busLinesNumber){
+        String stopName;
+        List<JourneyPatternPointOnLine> value = finish.get(busLinesNumber);
+        if(!value.isEmpty()) {
+            for (int j = 0; j < value.size(); j++) {
+                stopName = stops.containsKey(value.get(j).getJourneyPatternPointNumber())
+                        ? stops.get(value.get(j).getJourneyPatternPointNumber())
+                        : value.get(j).getJourneyPatternPointNumber();
+                System.out.println("Linje " + busLinesNumber + ": Hållplats (" + j + "): " + stopName);
             }
         }
     }
@@ -69,5 +93,15 @@ public class UtilityMethods {
             toRet.put(toComapareList.get(i).getKey(),toComapareList.get(i).getValue());
         }
         return toRet;
+    }
+
+    public BusXMLMapper getCallBusses(RestTemplate restTemplate){
+        return restTemplate.getForObject(Constants.BUSES_URI, BusXMLMapper.class);
+    }
+
+    public StationXMLMapper getCallStations(RestTemplate restTemplate){
+        if(restTemplate == null)
+            return null;
+        return restTemplate.getForObject(Constants.BUSSTOP_URI, StationXMLMapper.class);
     }
 }
