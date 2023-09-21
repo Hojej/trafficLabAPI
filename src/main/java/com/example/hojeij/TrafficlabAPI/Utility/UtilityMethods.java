@@ -1,10 +1,28 @@
 package com.example.hojeij.TrafficlabAPI.Utility;
 
-import com.example.hojeij.TrafficlabAPI.Mappers.JourneyPatternPointOnLine;
+import com.example.hojeij.TrafficlabAPI.Mappers.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
 public class UtilityMethods {
+
+    public Map<String, String> stopsInfo(List<Site> list){
+        return dataFormatter(list);
+    }
+
+    private Map<String, String> dataFormatter(List<Site> list) {
+        Map<String, String> toRet = new HashMap<>();
+        if(!list.isEmpty()){
+            for (int i = 0; i < list.size(); i++){
+                toRet.put(list.get(i).getStopAreaNumber(), list.get(i).getSiteName());
+            }
+            return toRet;
+        } else {
+            toRet.put("-1", "-1");
+            return toRet;
+        }
+    }
 
     public void printResult(Map<Integer, List<JourneyPatternPointOnLine>> finish, Map<String, String> stops){
         System.out.println(finish.keySet());
@@ -69,5 +87,15 @@ public class UtilityMethods {
             toRet.put(toComapareList.get(i).getKey(),toComapareList.get(i).getValue());
         }
         return toRet;
+    }
+
+    public BusXMLMapper getCallBusses(RestTemplate restTemplate){
+        return restTemplate.getForObject(Constants.BUSES_URI, BusXMLMapper.class);
+    }
+
+    public StationXMLMapper getCallStations(RestTemplate restTemplate){
+        if(restTemplate == null)
+            return null;
+        return restTemplate.getForObject(Constants.BUSSTOP_URI, StationXMLMapper.class);
     }
 }
