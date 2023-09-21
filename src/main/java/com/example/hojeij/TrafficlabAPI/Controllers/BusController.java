@@ -1,71 +1,50 @@
 package com.example.hojeij.TrafficlabAPI.Controllers;
 
-import com.example.hojeij.TrafficlabAPI.Common.JAXBConverter;
+import com.example.hojeij.TrafficlabAPI.Mappers.BusXMLMapper;
 import com.example.hojeij.TrafficlabAPI.Mappers.Constants;
 import com.example.hojeij.TrafficlabAPI.Mappers.JourneyPatternPointOnLine;
-import jakarta.xml.bind.JAXBException;
+import com.example.hojeij.TrafficlabAPI.Mappers.StationXMLMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import org.springframework.web.client.RestTemplate;
 import java.util.*;
 
 @RestController
 public class BusController {
 
+    @Autowired
+    private RestTemplate restTemplate; //Could use WebClient instead
+
     @GetMapping
-    public void busInfo() throws URISyntaxException {
+    public void busInfo() {
 
-        HttpResponse busResponse = callAPIToGetBuses();
-
-        Map<Integer, List<JourneyPatternPointOnLine>> sortedListofTop10Buses = sortedMap(formatterMap(createBusStopIDList(busResponse)));
+        Map<Integer, List<JourneyPatternPointOnLine>> sortedListofTop10Buses = sortedMap(formatterMap(getCallBusses().getResponseData().getList()));
 
         BusStopController busStopController = new BusStopController();
 
-        printResult(sortedListofTop10Buses, busStopController.stopsInfo());
+        printResult(sortedListofTop10Buses, busStopController.stopsInfo(getCallStations().getResponseData().getList()));
     }
 
-    private List<JourneyPatternPointOnLine> createBusStopIDList(HttpResponse res){
-        List<JourneyPatternPointOnLine> list;
-        try {
-            list = JAXBConverter.XMLtoBusPOJO(res.body().toString()).getResponseData().getList();
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
-        return list;
+    private BusXMLMapper getCallBusses(){
+        return restTemplate.getForObject(Constants.BUSES_URI, BusXMLMapper.class);
     }
 
-    private HttpResponse callAPIToGetBuses() throws URISyntaxException {
-        HttpRequest get = HttpRequest.newBuilder()
-                .uri(new URI(Constants.BUSES_URI))
-                .GET().build();
-
-        HttpClient httpClient = HttpClient.newHttpClient();
-        HttpResponse res = null;
-        try {
-            res = httpClient.send(get, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        return res;
+    private StationXMLMapper getCallStations(){
+        return restTemplate.getForObject(Constants.BUSSTOP_URI, StationXMLMapper.class);
     }
 
     private void printResult(Map<Integer, List<JourneyPatternPointOnLine>> finish, Map<String, String> stops){
         System.out.println(finish.keySet());
         ArrayList<Integer> arr = new ArrayList<>(finish.keySet());
+        String stopName;
         for (int i = 0; i < finish.size(); i++) {
             List<JourneyPatternPointOnLine> value = finish.get(arr.get(i));
             for (int j = 0; j < value.size(); j++) {
-                if (stops.containsKey(value.get(j).getJourneyPatternPointNumber())) {
-                    System.out.println("Linje " + arr.get(i) + ": Hållplats (" + j + "): " + stops.get(value.get(j).getJourneyPatternPointNumber()));
-                } else {
-                    System.out.println("Linje " + arr.get(i) + ": Hållplats (" + j + "): " + value.get(j).getJourneyPatternPointNumber());
-                }
+                stopName = stops.containsKey(value.get(j).getJourneyPatternPointNumber())
+                        ? stops.get(value.get(j).getJourneyPatternPointNumber())
+                        : value.get(j).getJourneyPatternPointNumber();
+                System.out.println("Linje " + arr.get(i) + ": Hållplats (" + j + "): " + stopName);
             }
         }
     }
