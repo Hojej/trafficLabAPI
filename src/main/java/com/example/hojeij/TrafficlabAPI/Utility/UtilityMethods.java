@@ -26,19 +26,25 @@ public class UtilityMethods {
 
     public void printResult(Map<Integer, List<JourneyPatternPointOnLine>> finish, Map<String, String> stops){
         System.out.println(finish.keySet());
-        ArrayList<Integer> arr = new ArrayList<>(finish.keySet());
-        String stopName;
+        ArrayList<Integer> busLinesList = new ArrayList<>(finish.keySet());
         if(!finish.isEmpty()){
             for (int i = 0; i < finish.size(); i++) {
-                List<JourneyPatternPointOnLine> value = finish.get(arr.get(i));
-                if(!value.isEmpty()) {
-                    for (int j = 0; j < value.size(); j++) {
-                        stopName = stops.containsKey(value.get(j).getJourneyPatternPointNumber())
-                                ? stops.get(value.get(j).getJourneyPatternPointNumber())
-                                : value.get(j).getJourneyPatternPointNumber();
-                        System.out.println("Linje " + arr.get(i) + ": Hållplats (" + j + "): " + stopName);
-                    }
-                }
+                printerLoop(finish, stops, busLinesList.get(i));
+            }
+        }
+    }
+
+    private void printerLoop(Map<Integer, List<JourneyPatternPointOnLine>> finish
+            , Map<String, String> stops
+            , int busLinesNumber){
+        String stopName;
+        List<JourneyPatternPointOnLine> value = finish.get(busLinesNumber);
+        if(!value.isEmpty()) {
+            for (int j = 0; j < value.size(); j++) {
+                stopName = stops.containsKey(value.get(j).getJourneyPatternPointNumber())
+                        ? stops.get(value.get(j).getJourneyPatternPointNumber())
+                        : value.get(j).getJourneyPatternPointNumber();
+                System.out.println("Linje " + busLinesNumber + ": Hållplats (" + j + "): " + stopName);
             }
         }
     }
