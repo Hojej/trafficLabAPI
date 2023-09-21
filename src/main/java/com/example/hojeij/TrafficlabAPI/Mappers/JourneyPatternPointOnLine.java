@@ -5,8 +5,6 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlType;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @XmlType(name = "JourneyPatternPointOnLine", propOrder = {
         "lineNumber",
         "directionCode",
