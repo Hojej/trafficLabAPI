@@ -1,7 +1,6 @@
 package com.example.hojeij.TrafficlabAPI.Mappers;
 
 import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
 import java.util.List;
@@ -11,7 +10,7 @@ import java.util.List;
         "type",
         "list"
 })
-public class ResponseData {
+public class BusResponseData {
     private String version;
     private String type;
     private List<JourneyPatternPointOnLine> list;

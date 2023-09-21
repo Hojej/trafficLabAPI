@@ -5,8 +5,6 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlType;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @XmlType(name = "JourneyPatternPointOnLine", propOrder = {
         "lineNumber",
         "directionCode",
@@ -19,8 +17,16 @@ public class JourneyPatternPointOnLine {
     private int lineNumber;
     private int directionCode;
     private String journeyPatternPointNumber;
-    private Date lastModifiedUtcDateTime;
-    private Date existsFromDate;
+    private String lastModifiedUtcDateTime;
+    private String existsFromDate;
+
+    public JourneyPatternPointOnLine(int lineNumber, int directionCode, String journeyPatternPointNumber, String lastModifiedUtcDateTime, String existsFromDate) {
+        this.lineNumber = lineNumber;
+        this.directionCode = directionCode;
+        this.journeyPatternPointNumber = journeyPatternPointNumber;
+        this.lastModifiedUtcDateTime = lastModifiedUtcDateTime;
+        this.existsFromDate = existsFromDate;
+    }
 
     @XmlElement(name = "LineNumber", namespace = Constants.JOURNEYPATTERNPOINTONLINE_NAMESPACE)
     public int getLineNumber() {
@@ -50,20 +56,20 @@ public class JourneyPatternPointOnLine {
     }
 
     @XmlElement(name = "LastModifiedUtcDateTime", namespace = Constants.JOURNEYPATTERNPOINTONLINE_NAMESPACE)
-    public Date getLastModifiedUtcDateTime() {
+    public String getLastModifiedUtcDateTime() {
         return lastModifiedUtcDateTime;
     }
 
-    public void setLastModifiedUtcDateTime(Date lastModifiedUtcDateTime) {
+    public void setLastModifiedUtcDateTime(String lastModifiedUtcDateTime) {
         this.lastModifiedUtcDateTime = lastModifiedUtcDateTime;
     }
 
     @XmlElement(name = "ExistsFromDate", namespace = Constants.JOURNEYPATTERNPOINTONLINE_NAMESPACE)
-    public Date getExistsFromDate() {
+    public String getExistsFromDate() {
         return existsFromDate;
     }
 
-    public void setExistsFromDate(Date existsFromDate) {
+    public void setExistsFromDate(String existsFromDate) {
         this.existsFromDate = existsFromDate;
     }
 }

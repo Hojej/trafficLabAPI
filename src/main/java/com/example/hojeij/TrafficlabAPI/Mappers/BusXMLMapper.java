@@ -12,19 +12,19 @@ import lombok.NoArgsConstructor;
         "responseData"
 })
 @NoArgsConstructor
-public class XMLMapper {
+public class BusXMLMapper {
     private String statusCode;
 
     private int executionTime;
-    private ResponseData responseData;
+    private BusResponseData responseData;
 
     @XmlElement(name="ResponseData")
-    public ResponseData getResponseData() {
+    public BusResponseData getResponseData() {
         return responseData;
     }
 
 
-    public void setResponseData(ResponseData responseData) {
+    public void setResponseData(BusResponseData responseData) {
         this.responseData = responseData;
     }
     @XmlElement(name="StatusCode")
