@@ -6,17 +6,19 @@ import com.example.hojeij.TrafficlabAPI.Mappers.JourneyPatternPointOnLine;
 import com.example.hojeij.TrafficlabAPI.Mappers.StationXMLMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import java.util.*;
 
 @RestController
+@RequestMapping("/api")
 public class BusController {
 
     @Autowired
     private RestTemplate restTemplate; //Could use WebClient instead
 
-    @GetMapping
+    @GetMapping("/top-10-busiest-buslines")
     public void busInfo() {
 
         Map<Integer, List<JourneyPatternPointOnLine>> sortedListofTop10Buses = sortedMap(formatterMap(getCallBusses().getResponseData().getList()));
