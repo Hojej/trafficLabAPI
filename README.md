@@ -1,6 +1,6 @@
 # trafficLabAPI
 ## About
-This Apllication is a Sprint boot application that uses RestTemplate to communicate to another API.
+This Application is a Sprint boot application that uses RestTemplate to communicate with another API.
 This program's purpose is to consume TraficLabs API, grab all Buslines and its stops, also consume another endpoint to grab all the names of all bus stations, and match the JourneyPatternPointOnLine with the name of the stations.
 
 
@@ -9,4 +9,4 @@ This program's purpose is to consume TraficLabs API, grab all Buslines and its s
 2. To run the request, go to localhost:8080/api/top-10-busiest-buslines and refresh the page once, everytime it is refreshed, it will run the request again.
 
 ## Result
-The application prints the top 10 buslines with the busstops, and the name of the stops if they are available, otherwise it will just print the busline and the ID of the bus stop, and that is done in the Console.
+The application prints the top 10 buslines with its busstops, and the name of the stops if they are available, otherwise it will just print the busline and the ID of the bus stop, and these values are printed in the Console.
