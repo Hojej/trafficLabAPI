@@ -1,6 +1,6 @@
 # trafficLabAPI
 ## About
-This Application is a Sprint boot application that uses RestTemplate to communicate with another API.
+This Application is a Sprint boot application that uses WebClient to communicate with another API.
 This program's purpose is to consume TraficLabs API, grab all Buslines and its stops, also consume another endpoint to grab all the names of all bus stations, and match the JourneyPatternPointOnLine with the name of the stations.
 
 
