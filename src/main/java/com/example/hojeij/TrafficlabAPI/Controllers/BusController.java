@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import java.util.*;
 
 @RestController
@@ -16,6 +18,8 @@ public class BusController {
 
     @Autowired
     private RestTemplate restTemplate; //Could use WebClient instead
+    @Autowired
+    private WebClient.Builder getWebClientBuilder;
     private UtilityMethods utility;
 
     @GetMapping("/top-10-busiest-buslines")
@@ -23,12 +27,12 @@ public class BusController {
 
         utility = new UtilityMethods();
 
-        BusXMLMapper busXMLMapper = utility.getCallBusses(restTemplate);
+        BusXMLMapper busXMLMapper = utility.getCallBussesWeb(getWebClientBuilder);
 
         if(Objects.nonNull(busXMLMapper)){
             Map<Integer, List<JourneyPatternPointOnLine>> sortedListofTop10Buses = utility.sortedMap(utility.formatterMap(busXMLMapper.getResponseData().getList()));
 
-            utility.printResult(sortedListofTop10Buses, utility.stopsInfo(utility.getCallStations(restTemplate).getResponseData().getList()));
+            utility.printResult(sortedListofTop10Buses, utility.stopsInfo(utility.getCallStationsWeb(getWebClientBuilder).getResponseData().getList()));
         }else {
             throw new UnknownFormatConversionException("Response could not be formatted correctly!");
         }

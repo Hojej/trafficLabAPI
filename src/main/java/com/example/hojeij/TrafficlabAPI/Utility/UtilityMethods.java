@@ -2,6 +2,7 @@ package com.example.hojeij.TrafficlabAPI.Utility;
 
 import com.example.hojeij.TrafficlabAPI.Mappers.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
 
@@ -95,13 +96,27 @@ public class UtilityMethods {
         return toRet;
     }
 
-    public BusXMLMapper getCallBusses(RestTemplate restTemplate){
-        return restTemplate.getForObject(Constants.BUSES_URI, BusXMLMapper.class);
+    public BusXMLMapper getCallBussesWeb(WebClient.Builder webClient){
+        if(webClient == null)
+            return null;
+        return webClient
+                .build()
+                .get()
+                .uri(Constants.BUSES_URI)
+                .retrieve()
+                .bodyToMono(BusXMLMapper.class)
+                .block();
     }
 
-    public StationXMLMapper getCallStations(RestTemplate restTemplate){
-        if(restTemplate == null)
+    public StationXMLMapper getCallStationsWeb(WebClient.Builder webClient){
+        if(webClient == null)
             return null;
-        return restTemplate.getForObject(Constants.BUSSTOP_URI, StationXMLMapper.class);
+        return webClient
+                .build()
+                .get()
+                .uri(Constants.BUSSTOP_URI)
+                .retrieve()
+                .bodyToMono(StationXMLMapper.class)
+                .block();
     }
 }
