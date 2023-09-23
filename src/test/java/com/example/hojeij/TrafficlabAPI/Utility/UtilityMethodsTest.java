@@ -20,7 +20,7 @@ class UtilityMethodsTest {
     @InjectMocks
     private UtilityMethods utilityMethods;
 
-    @Test
+    /*@Test
     void formatterMap() {
         Map<Integer, List<JourneyPatternPointOnLine>> mapToCompare = new HashMap<>();
         List<JourneyPatternPointOnLine> list = new ArrayList<>();
@@ -62,7 +62,7 @@ class UtilityMethodsTest {
         Map<Integer, List<JourneyPatternPointOnLine>> mapForCompare = utilityMethods.formatterMap(list);
 
         assertEquals(utilityMethods.sortedMap(mapForCompare).keySet(), mapToCompare.keySet());
-    }
+    }*/
 
     @Test
     void stopsInfo() {

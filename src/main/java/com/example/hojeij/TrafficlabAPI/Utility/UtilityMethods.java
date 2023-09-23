@@ -50,21 +50,29 @@ public class UtilityMethods {
         }
     }
 
-    public HashMap<Integer, List<JourneyPatternPointOnLine>> formatterMap(List<JourneyPatternPointOnLine> list){
+    public HashMap<Integer, List<JourneyPatternPointOnLine>> formatterMap(List<JourneyPatternPointOnLine> list, Map<String, String> stations){
         HashMap<Integer, List<JourneyPatternPointOnLine>> toRet = new HashMap<>();
         int busLine = 0;
         while(!list.isEmpty()){
             List<JourneyPatternPointOnLine> tempList = new ArrayList<>();
-            tempList.add(list.get(list.size()-1));
-            busLine = list.get(list.size()-1).getLineNumber();
-            list.remove(list.size()-1);
-            for (int i = list.size()-1; i >= 0; i--){
-                if(list.get(i).getLineNumber() == tempList.get(0).getLineNumber()){
-                    tempList.add(list.get(i));
-                    list.remove(i);
+            if(stations.containsKey(list.get(list.size()-1).getJourneyPatternPointNumber())){
+                tempList.add(list.get(list.size()-1));
+                busLine = list.get(list.size()-1).getLineNumber();
+                list.remove(list.size()-1);
+                for (int i = list.size()-1; i >= 0; i--){
+                    if(list.get(i).getLineNumber() == tempList.get(0).getLineNumber()){
+                        if(stations.containsKey(list.get(i).getJourneyPatternPointNumber())){
+                            tempList.add(list.get(i));
+                            list.remove(i);
+                        } else {
+                            list.remove(i);
+                        }
+                    }
                 }
+                toRet.put(busLine, tempList);
+            } else {
+                list.remove(list.get(list.size()-1));
             }
-            toRet.put(busLine, tempList);
         }
         return toRet;
     }

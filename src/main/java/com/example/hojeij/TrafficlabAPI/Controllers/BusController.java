@@ -2,6 +2,7 @@ package com.example.hojeij.TrafficlabAPI.Controllers;
 
 import com.example.hojeij.TrafficlabAPI.Mappers.BusXMLMapper;
 import com.example.hojeij.TrafficlabAPI.Mappers.JourneyPatternPointOnLine;
+import com.example.hojeij.TrafficlabAPI.Mappers.StationXMLMapper;
 import com.example.hojeij.TrafficlabAPI.Utility.UtilityMethods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +18,6 @@ import java.util.*;
 public class BusController {
 
     @Autowired
-    private RestTemplate restTemplate; //Could use WebClient instead
-    @Autowired
     private WebClient.Builder getWebClientBuilder;
     private UtilityMethods utility;
 
@@ -29,12 +28,42 @@ public class BusController {
 
         BusXMLMapper busXMLMapper = utility.getCallBussesWeb(getWebClientBuilder);
 
-        if(Objects.nonNull(busXMLMapper)){
-            Map<Integer, List<JourneyPatternPointOnLine>> sortedListofTop10Buses = utility.sortedMap(utility.formatterMap(busXMLMapper.getResponseData().getList()));
+        StationXMLMapper stationXMLMapper = utility.getCallStationsWeb(getWebClientBuilder);
 
-            utility.printResult(sortedListofTop10Buses, utility.stopsInfo(utility.getCallStationsWeb(getWebClientBuilder).getResponseData().getList()));
+        Map<String, String>  stations = utility.stopsInfo(stationXMLMapper.getResponseData().getList());
+
+        Map<Integer, List<JourneyPatternPointOnLine>> busLines = utility.formatterMap(busXMLMapper.getResponseData().getList(), stations);
+
+        if(Objects.nonNull(busXMLMapper)){
+            if(Objects.nonNull(stationXMLMapper)){
+                Map<Integer, List<JourneyPatternPointOnLine>> sortedListofTop10Buses = utility.sortedMap(busLines);
+
+                utility.printResult(sortedListofTop10Buses, stations);
+            } else {
+                System.out.printf("Station names couldn't be loaded!");
+            }
+
         }else {
             throw new UnknownFormatConversionException("Response could not be formatted correctly!");
         }
     }
+
+    /*private HashMap<Integer, List<JourneyPatternPointOnLine>> filterStops(Map<Integer, List<JourneyPatternPointOnLine>> busLines,
+                                                                          Map<String, String>  stations){
+        ArrayList<String> busStopIDList = new ArrayList<>(stations.keySet());
+        ArrayList<Integer> busLinesList = new ArrayList<>(busLines.keySet());
+        Map<Integer, List<JourneyPatternPointOnLine>> toRet = new HashMap<>();
+
+        for (int i = 0; i < busLinesList.size(); i++){
+            for (int j = 0; j < busStopIDList.size(); j++){
+                if(){
+                    for (int j = 0; j < busStopIDList.size(); j++){
+                        if(stations.containsKey(busLines.get(busLinesList.get(i)).get(j).getJourneyPatternPointNumber()){
+
+                        }
+                    }
+                }
+            }
+        }
+    }*/
 }
