@@ -47,23 +47,4 @@ public class BusController {
             throw new UnknownFormatConversionException("Response could not be formatted correctly!");
         }
     }
-
-    /*private HashMap<Integer, List<JourneyPatternPointOnLine>> filterStops(Map<Integer, List<JourneyPatternPointOnLine>> busLines,
-                                                                          Map<String, String>  stations){
-        ArrayList<String> busStopIDList = new ArrayList<>(stations.keySet());
-        ArrayList<Integer> busLinesList = new ArrayList<>(busLines.keySet());
-        Map<Integer, List<JourneyPatternPointOnLine>> toRet = new HashMap<>();
-
-        for (int i = 0; i < busLinesList.size(); i++){
-            for (int j = 0; j < busStopIDList.size(); j++){
-                if(){
-                    for (int j = 0; j < busStopIDList.size(); j++){
-                        if(stations.containsKey(busLines.get(busLinesList.get(i)).get(j).getJourneyPatternPointNumber()){
-
-                        }
-                    }
-                }
-            }
-        }
-    }*/
 }
